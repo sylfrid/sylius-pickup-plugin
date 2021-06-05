@@ -89,8 +89,8 @@ final class CheckoutShipmentTypeExtension extends AbstractTypeExtension
     /**
      * {@inheritdoc}
      */
-    public function getExtendedType(): string
+    public static function getExtendedTypes(): iterable
     {
-        return ShipmentType::class;
+        return [ShipmentType::class];
     }
 }

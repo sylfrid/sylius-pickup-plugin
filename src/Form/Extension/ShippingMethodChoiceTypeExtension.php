@@ -60,8 +60,8 @@ final class ShippingMethodChoiceTypeExtension extends AbstractTypeExtension
     /**
      * {@inheritdoc}
      */
-    public function getExtendedType(): string
+    public static function getExtendedTypes(): iterable
     {
-        return ShippingMethodChoiceType::class;
+        return [ShippingMethodChoiceType::class];
     }
 }
