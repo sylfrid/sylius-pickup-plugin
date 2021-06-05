@@ -14,7 +14,7 @@ use Sylius\Component\Core\Model\Shipment as BaseShipment;
 
 /**
  * @ORM\Entity
- * @ORM\Table("sylius_shipment")
+ * @ORM\MappedSuperclass()
  */
 class Shipment extends BaseShipment
 {
