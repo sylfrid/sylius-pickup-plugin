@@ -11,6 +11,7 @@ namespace Magentix\SyliusPickupPlugin\Form\Extension;
 
 use Magentix\SyliusPickupPlugin\Shipping\Calculator\CalculatorInterface as PickupCalculatorInterface;
 use Sylius\Bundle\CoreBundle\Form\Type\Checkout\ShipmentType;
+use Sylius\Bundle\ThemeBundle\Translation\ThemeAwareTranslator;
 use Sylius\Component\Core\Repository\ShippingMethodRepositoryInterface;
 use Sylius\Component\Registry\ServiceRegistryInterface;
 use Symfony\Component\Form\AbstractTypeExtension;
@@ -19,7 +20,6 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
 use Symfony\Component\Form\FormError;
-use Symfony\Component\Translation\TranslatorInterface;
 
 final class CheckoutShipmentTypeExtension extends AbstractTypeExtension
 {
@@ -35,19 +35,19 @@ final class CheckoutShipmentTypeExtension extends AbstractTypeExtension
     private $shippingMethodRepository;
 
     /**
-     * @var TranslatorInterface $translator
+     * @var ThemeAwareTranslator $translator
      */
     private $translator;
 
     /**
      * @param ServiceRegistryInterface $calculatorRegistry
      * @param ShippingMethodRepositoryInterface $shippingMethodRepository
-     * @param TranslatorInterface $translator
+     * @param ThemeAwareTranslator $translator
      */
     public function __construct(
         ServiceRegistryInterface $calculatorRegistry,
         ShippingMethodRepositoryInterface $shippingMethodRepository,
-        TranslatorInterface $translator
+        ThemeAwareTranslator $translator
     ) {
         $this->calculatorRegistry = $calculatorRegistry;
         $this->shippingMethodRepository = $shippingMethodRepository;
