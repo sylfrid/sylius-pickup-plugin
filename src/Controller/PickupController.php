@@ -19,12 +19,12 @@ use Sylius\Component\Shipping\Calculator\CalculatorInterface;
 use Sylius\Component\Registry\ServiceRegistryInterface;
 use Sylius\Component\Resource\Repository\RepositoryInterface;
 use Sylius\Component\Addressing\Model\CountryInterface;
-use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Intl\Intl;
+use Symfony\Component\Intl\Countries;
 
-final class PickupController extends Controller
+final class PickupController extends AbstractController
 {
 
     /**
@@ -199,7 +199,7 @@ final class PickupController extends Controller
      */
     private function getAvailableCountries(): array
     {
-        $countries = Intl::getRegionBundle()->getCountryNames();
+        $countries = Countries::getNames();
 
         /** @var CountryInterface[] $definedCountries */
         $definedCountries = $this->countryRepository->findAll();

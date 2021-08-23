@@ -4,3 +4,5 @@ services:
         arguments:
             - "@sylius.registry.shipping_calculator"
             - "@sylius.repository.country"
+        calls:
+            -   setContainer: [ '@service_container' ]
