@@ -1,9 +1,9 @@
 {
-    "name": "sylfrid/sylius-pickup-plugin",
+    "name": "dnc-grafmen/sylius-pickup-plugin",
     "type": "sylius-plugin",
     "description": "Pickup Shipping plugin for Sylius.",
     "license": "MIT",
-    "version": "1.4.3",
+    "version": "1.4.3.1",
     "require": {
         "php": "^7.2",
         "sylius/sylius": "~1.9"

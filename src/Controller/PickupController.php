@@ -10,18 +10,18 @@ declare(strict_types=1);
 namespace Magentix\SyliusPickupPlugin\Controller;
 
 use Magentix\SyliusPickupPlugin\Shipping\Calculator\CalculatorInterface as PickupCalculatorInterface;
+use Sylius\Component\Addressing\Model\CountryInterface;
+use Sylius\Component\Core\Model\ShippingMethod;
 use Sylius\Component\Core\Repository\OrderRepositoryInterface;
 use Sylius\Component\Core\Repository\ShippingMethodRepositoryInterface;
-use Sylius\Component\Core\Model\ShippingMethod;
-use Sylius\Component\Order\Model\OrderInterface;
 use Sylius\Component\Order\Context\CartContextInterface;
-use Sylius\Component\Shipping\Calculator\CalculatorInterface;
+use Sylius\Component\Order\Model\OrderInterface;
 use Sylius\Component\Registry\ServiceRegistryInterface;
 use Sylius\Component\Resource\Repository\RepositoryInterface;
-use Sylius\Component\Addressing\Model\CountryInterface;
+use Sylius\Component\Shipping\Calculator\CalculatorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Intl\Countries;
 
 final class PickupController extends AbstractController
@@ -44,17 +44,18 @@ final class PickupController extends AbstractController
     public function __construct(
         ServiceRegistryInterface $calculatorRegistry,
         RepositoryInterface $countryRepository
-    ) {
+    )
+    {
         $this->calculatorRegistry = $calculatorRegistry;
-        $this->countryRepository  = $countryRepository;
+        $this->countryRepository = $countryRepository;
     }
 
     /**
      * Display Pickup List
      *
      * @param Request $request
-     * @param string $method
-     * @return Response|string
+     * @param string|null $method
+     * @return Response
      */
     public function listAction(Request $request, ?string $method): Response
     {
@@ -62,10 +63,10 @@ final class PickupController extends AbstractController
 
         $params = $request->request->all();
 
-        $pickupTemplate  = $this->getDefaultTemplate();
+        $pickupTemplate = $this->getDefaultTemplate();
         $pickupCurrentId = null;
-        $pickupList      = [];
-        $currentAddress  = null;
+        $pickupList = [];
+        $currentAddress = null;
 
         /** @var PickupCalculatorInterface $calculator */
         if ($calculator instanceof PickupCalculatorInterface) {
@@ -75,7 +76,7 @@ final class PickupController extends AbstractController
 
             $cart = $this->getCurrentCart();
             if (null !== $cart->getId()) {
-                $cart    = $this->getOrderRepository()->findCartForSummary($cart->getId());
+                $cart = $this->getOrderRepository()->findCartForSummary($cart->getId());
                 $address = $cart->getShippingAddress();
 
                 $shipment = $cart->getShipments()->current();
@@ -96,12 +97,12 @@ final class PickupController extends AbstractController
         $pickup = [
             'pickup' => [
                 'current_id' => $pickupCurrentId,
-                'list'       => $pickupList,
+                'list' => $pickupList,
             ],
-            'address'   => $currentAddress,
+            'address' => $currentAddress,
             'countries' => $this->getAvailableCountries(),
-            'index'     => $request->get('index', 0),
-            'code'      => $method,
+            'index' => $request->get('index', 0),
+            'code' => $method,
         ];
 
         return $this->render($pickupTemplate, ['method' => $pickup]);
@@ -110,15 +111,15 @@ final class PickupController extends AbstractController
     /**
      * Retrieve Shipping Method Calculator
      *
-     * @param string $shippingMethod
-     * @return CalculatorInterface|bool
+     * @param string|null $shippingMethod
+     * @return CalculatorInterface|null
      */
-    protected function getCalculator(string $shippingMethod): CalculatorInterface
+    protected function getCalculator(?string $shippingMethod): ?CalculatorInterface
     {
         $method = $this->getMethod($shippingMethod);
 
         if ($method === null) {
-            return false;
+            return null;
         }
 
         /** @var CalculatorInterface $calculator */
@@ -130,19 +131,38 @@ final class PickupController extends AbstractController
     /**
      * Retrieve Shipping Method
      *
-     * @param string $shippingMethod
-     * @return ShippingMethod|bool
+     * @param string|null $shippingMethod
+     * @return ShippingMethod|null
      */
-    protected function getMethod(?string $shippingMethod): ShippingMethod
+    protected function getMethod(?string $shippingMethod): ?ShippingMethod
     {
         /** @var ShippingMethod|null $method */
         $method = $this->getShippingMethodRepository()->findOneBy(['code' => $shippingMethod]);
 
-        if ($method === null) {
-            return false;
-        }
-
         return $method;
+    }
+
+    /**
+     * Retrieve Shipping Mzthod Repository
+     *
+     * @return ShippingMethodRepositoryInterface
+     */
+    protected function getShippingMethodRepository(): ShippingMethodRepositoryInterface
+    {
+        /** @var ShippingMethodRepositoryInterface $shippingMethodRepository */
+        $shippingMethodRepository = $this->get('sylius.repository.shipping_method');
+
+        return $shippingMethodRepository;
+    }
+
+    /**
+     * Retrieve default template for pickup list
+     *
+     * @return string
+     */
+    protected function getDefaultTemplate(): string
+    {
+        return '@MagentixSyliusPickupPlugin/checkout/SelectShipping/pickup/list.html.twig';
     }
 
     /**
@@ -182,19 +202,6 @@ final class PickupController extends AbstractController
     }
 
     /**
-     * Retrieve Shipping Mzthod Repository
-     *
-     * @return ShippingMethodRepositoryInterface
-     */
-    protected function getShippingMethodRepository(): ShippingMethodRepositoryInterface
-    {
-        /** @var ShippingMethodRepositoryInterface $shippingMethodRepository */
-        $shippingMethodRepository = $this->get('sylius.repository.shipping_method');
-
-        return $shippingMethodRepository;
-    }
-
-    /**
      * @return array|CountryInterface[]
      */
     private function getAvailableCountries(): array
@@ -211,15 +218,5 @@ final class PickupController extends AbstractController
         }
 
         return $availableCountries;
-    }
-
-    /**
-     * Retrieve default template for pickup list
-     *
-     * @return string
-     */
-    protected function getDefaultTemplate(): string
-    {
-        return '@MagentixSyliusPickupPlugin/checkout/SelectShipping/pickup/list.html.twig';
     }
 }
